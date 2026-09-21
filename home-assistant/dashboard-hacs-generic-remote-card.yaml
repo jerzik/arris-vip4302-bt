@@ -1,0 +1,98 @@
+# =====================================================================
+#  Alternativni dashboard karta pomoci HACS pluginu
+#  "generic-remote-control-card" (dimagoltsman)
+#  https://github.com/dimagoltsman/generic-remote-control-card
+#
+#  Instalace:
+#    1. HACS -> Frontend -> (...) -> Custom repositories
+#       URL: https://github.com/dimagoltsman/generic-remote-control-card
+#       Kategorie: Lovelace
+#    2. Stahnout, reload HA
+#    3. Vloz tuhle kartu do dashboardu (Manualni/YAML editor)
+#
+#  Poznamka: sablona "simple" ma pevnou sadu tlacitek - cisla,
+#  barevna tlacitka a PLAY/REC/VOD do ni nejdou pridat. Pro presnou
+#  kopii fyzickeho ovladace pouzij radeji home-assistant/dashboard.yaml
+#  (vestavene HA karty, plne prizpusobitelne).
+# =====================================================================
+type: custom:generic-remote-control-card
+name: Arris VIP4302
+remote_template: simple
+buttons:
+  power:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: POWER
+  mute:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: MUTE
+  volplus:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: VOL_UP
+  volmin:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: VOL_DOWN
+  channelup:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: CH_UP
+  channeldown:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: CH_DOWN
+  top:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: UP
+  bottom:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: DOWN
+  left:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: LEFT
+  right:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: RIGHT
+  ok:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: OK
+  back:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: BACK
+  home:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: HOME
+  menu:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: MENU
+  info:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: INFO
+  netflix: null
+  youtube: null

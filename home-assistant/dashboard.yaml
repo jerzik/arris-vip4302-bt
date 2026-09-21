@@ -1,0 +1,167 @@
+# =====================================================================
+#  ARRIS VIP4302 BT - Home Assistant dashboard karta
+#
+#  Postaveno na vestavenych HA kartach 'grid' + 'button' (zadny HACS
+#  neni potreba pro samotne ovladani). Kazde tlacitko vola sluzbu
+#  mqtt.publish na topic arris/vip4302/cmd s payloadem = nazev prikazu
+#  z tabulky COMMANDS ve firmwaru (viz firmware/arris_mqtt_hid.ino).
+#
+#  Tlacitka oznacena "# TODO" cekaji na dohledani keycodu (cisla,
+#  EPG, TEXT, hledani, PLAY/REC/VOD, prev/next) - viz README.
+# =====================================================================
+type: vertical-stack
+cards:
+  # --- POWER ---
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: button
+        show_name: false
+        icon: mdi:power
+        tap_action:
+          action: call-service
+          service: mqtt.publish
+          service_data:
+            topic: arris/vip4302/cmd
+            payload: POWER
+      - type: button
+        show_name: false
+        icon: mdi:close
+      - type: button
+        show_name: false
+        icon: mdi:close
+
+  # --- cisla 1-9 ---
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - {type: button, name: "1", tap_action: {action: none}}  # TODO
+      - {type: button, name: "2", tap_action: {action: none}}  # TODO
+      - {type: button, name: "3", tap_action: {action: none}}  # TODO
+      - {type: button, name: "4", tap_action: {action: none}}  # TODO
+      - {type: button, name: "5", tap_action: {action: none}}  # TODO
+      - {type: button, name: "6", tap_action: {action: none}}  # TODO
+      - {type: button, name: "7", tap_action: {action: none}}  # TODO
+      - {type: button, name: "8", tap_action: {action: none}}  # TODO
+      - {type: button, name: "9", tap_action: {action: none}}  # TODO
+      - {type: button, name: "TEXT", tap_action: {action: none}}  # TODO
+      - {type: button, name: "0", tap_action: {action: none}}  # TODO
+      - {type: button, name: "INFO", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: INFO}}}
+
+  # --- EPG / hlasitost ---
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: button
+        icon: mdi:volume-minus
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: VOL_DOWN}}
+      - {type: button, name: "EPG", tap_action: {action: none}}  # TODO
+      - type: button
+        icon: mdi:volume-plus
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: VOL_UP}}
+
+  # --- mute / menu / tv ---
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: button
+        icon: mdi:volume-mute
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: MUTE}}
+      - type: button
+        icon: mdi:menu
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: MENU}}
+      - type: button
+        icon: mdi:television
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: TV}}
+
+  # --- smerovy kriz ---
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: button
+        show_name: false
+      - type: button
+        icon: mdi:chevron-up
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: UP}}
+      - type: button
+        show_name: false
+      - type: button
+        icon: mdi:chevron-left
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: LEFT}}
+      - type: button
+        name: "OK"
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: OK}}
+      - type: button
+        icon: mdi:chevron-right
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: RIGHT}}
+      - type: button
+        show_name: false
+      - type: button
+        icon: mdi:chevron-down
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: DOWN}}
+      - type: button
+        show_name: false
+
+  # --- zpet / hledat ---
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: button
+        icon: mdi:arrow-left
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: BACK}}
+      - {type: button, icon: "mdi:magnify", show_name: false, tap_action: {action: none}}  # TODO hledani
+
+  # --- PLAY / REC / VOD ---
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - {type: button, name: "PLAY", tap_action: {action: none}}  # TODO
+      - {type: button, name: "REC", tap_action: {action: none}}  # TODO
+      - {type: button, name: "VOD", tap_action: {action: none}}  # TODO
+
+  # --- transport controls ---
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+      - type: button
+        icon: mdi:skip-previous
+        show_name: false
+        tap_action: {action: none}  # TODO
+      - type: button
+        icon: mdi:play-pause
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: PAUSE}}
+      - type: button
+        icon: mdi:skip-next
+        show_name: false
+        tap_action: {action: none}  # TODO
+      - type: button
+        icon: mdi:rewind
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: REV}}
+      - type: button
+        icon: mdi:stop
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: STOP}}
+      - type: button
+        icon: mdi:fast-forward
+        show_name: false
+        tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: FWD}}
