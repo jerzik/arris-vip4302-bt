@@ -137,21 +137,51 @@ Po nahrání sketche do ESP32-S3 lze příkazy testovat i přímo v Arduino Seri
 
 ## Home Assistant integrace
 
-Dva hotové dashboardy v `home-assistant/`:
+Tři hotové varianty dashboardu v `home-assistant/`:
 
-- **`dashboard.yaml`** — doporučeno. Postaveno čistě na vestavěných HA kartách (`grid` + `button`), **žádný HACS plugin není potřeba**, layout kopíruje rozložení fyzického ovladače (čísla, EPG, směrový kříž, transport controls...). Nefunkční tlačítka (chybí keycode) mají `tap_action: {action: none}` a komentář `# TODO`.
-- **`dashboard-hacs-generic-remote-card.yaml`** — alternativa přes HACS kartu [generic-remote-control-card](https://github.com/dimagoltsman/generic-remote-control-card). Šablona `simple` má ale pevnou sadu tlačítek (bez číslic a barevných tlačítek).
+- **`dashboard.yaml`** — postaveno čistě na vestavěných HA kartách (`grid` + `button`), **žádný HACS plugin není potřeba**, layout kopíruje rozložení fyzického ovladače (čísla, EPG, směrový kříž, transport controls...). Nefunkční tlačítka (chybí keycode) mají `tap_action: {action: none}` a komentář `# TODO`.
+- **`dashboard-hacs-generic-remote-card.yaml`** — **doporučeno od v1.1b**. Přes HACS kartu [generic-remote-control-card](https://github.com/dimagoltsman/generic-remote-control-card) s vlastní šablonou `arris_vip4302` (viz níže) — vizuálně věrná kopie fyzického ovladače ARRIS AURA RCL, ne generický layout s náhodnou sadou tlačítek.
+
+### Vlastní vzhled ovladače — šablona `arris_vip4302` (nové v1.1b)
+
+Standardní šablony karty `generic-remote-control-card` (`simple`, `lg_new`, `mibox`...) mají pevnou předdefinovanou sadu tlačítek bez podpory číselné klávesnice, EPG clusteru nebo barevných tlačítek. Protože žádná neodpovídá layoutu ovladače ARRIS AURA RCL, tenhle projekt dodává **vlastní šablonu** jako samostatný JS soubor:
+
+```
+home-assistant/remotes/arris_vip4302/remote-html.js
+```
+
+Šablona vizuálně kopíruje fyzický ovladač 1:1 — zaoblené černé tělo, kruhové POWER tlačítko vpravo nahoře, číselná klávesnice 1–9 + TEXT/0/INFO, cluster hlasitost (+/−) / EPG / MUTE / kanál (CH +/−), HOME + MENU, kruhový d-pad s OK uprostřed, BACK + hledání (lupa), 4 barevná tlačítka (červená/zelená/žlutá/modrá), TV/REC/VOD a dva řádky transport tlačítek (rewind/play-pause/forward, previous/stop/next). Tlačítka hlasitosti a skoku po programu (CH +/−) mají zvětšené ikony (~30 %) pro lepší čitelnost.
+
+**Instalace šablony:**
+
+1. Nainstaluj samotnou kartu `generic-remote-control-card` přes HACS (Frontend → Vlastní repozitáře).
+2. Zkopíruj `home-assistant/remotes/arris_vip4302/remote-html.js` do:
+   ```
+   /config/www/community/generic-remote-control-card/remotes/arris_vip4302/remote-html.js
+   ```
+   (vedle existujících `remotes/simple/`, `remotes/lg_new/` atd. — karta si šablonu tahá z `/hacsfiles/generic-remote-control-card/remotes/<template>/remote-html.js`).
+3. Vlož `home-assistant/dashboard-hacs-generic-remote-card.yaml` jako manuální (YAML) kartu do dashboardu (`remote_template: arris_vip4302`).
+4. Tvrdý refresh prohlížeče (Ctrl+F5), ať se stáhne nová šablona.
+
+**Namapovaná tlačítka** (podle aktuálně zjištěných keycodů — viz tabulka výše): power, směrovka (up/down/left/right/ok), back, menu, home, info, text (teletext), volup/voldown, mute, chup/chdown, tv, rec, playpause, stop, rewind/forward, previous/next.
+
+**Zatím bez akce** (tlačítko je vidět, ale `null` v YAML — čeká na dohledaný keycode): číslice 0–9, EPG, hledání (lupa), VOD, barevná tlačítka.
 
 ### Postup nasazení
 
 1. Nahraj `firmware/arris_mqtt_hid.ino` do ESP32-S3 (viz konfigurace desky výše), s doplněným WiFi a MQTT přihlášením.
 2. Ověř v HA (**Developer Tools → MQTT**, listen na `arris/vip4302/#`), že ESP po startu pošle `online` na `arris/vip4302/status`.
 3. Otestuj publish na `arris/vip4302/cmd` s payloadem např. `UP` — box by měl zareagovat.
-4. Vlož `home-assistant/dashboard.yaml` jako manuální (YAML) kartu do svého dashboardu.
+4. Vlož `home-assistant/dashboard.yaml` (nebo `dashboard-hacs-generic-remote-card.yaml` + šablonu, viz výše) jako manuální (YAML) kartu do svého dashboardu.
 
 ## ⚠️ Poznámka k distribuci přes HACS
 
-Tenhle projekt je **Arduino firmware + ukázková HA dashboard konfigurace**, ne Python integrace ani JS Lovelace plugin — proto ho HACS nemůže nabídnout jako instalovatelnou "integraci" nebo "frontend" komponentu (na to by bylo potřeba napsat vlastní `custom_component` nebo Lovelace kartu v JS). Releases na GitHubu (viz [Releases](../../releases)) slouží jako verzované ZIP balíčky ke stažení — firmware + dashboard konfigurace pohromadě — ne jako plugin instalovatelný přímo z HACS obchodu.
+Tenhle projekt je **Arduino firmware + ukázková HA dashboard konfigurace + vlastní šablona pro cizí HACS kartu**, ne samostatná Python integrace ani vlastní JS Lovelace plugin — proto ho HACS nemůže nabídnout jako instalovatelnou "integraci" nebo "frontend" komponentu ve svém obchodě (na to by bylo potřeba napsat vlastní `custom_component` nebo publikovat vlastní Lovelace kartu). Releases na GitHubu (viz [Releases](../../releases)) slouží jako verzované ZIP balíčky ke stažení — firmware + dashboard konfigurace + šablona ovladače pohromadě — ne jako plugin instalovatelný přímo z HACS obchodu.
+
+## Changelog
+
+- **v1.1b** — přidána vlastní šablona `arris_vip4302` pro `generic-remote-control-card` (vizuálně věrná kopie fyzického ovladače), aktualizovaná `dashboard-hacs-generic-remote-card.yaml` napojená na aktuální MQTT keymap, zvětšené ikony hlasitosti a kanálu (+30 %).
+- **v1.0b** — první veřejná verze: USB HID + MQTT most, firmware, HA dashboard (`grid`+`button`), zjištěný keymap.
 
 ## Licence
 

@@ -1,60 +1,44 @@
-# =====================================================================
-#  Alternativni dashboard karta pomoci HACS pluginu
-#  "generic-remote-control-card" (dimagoltsman)
-#  https://github.com/dimagoltsman/generic-remote-control-card
+# ============================================================================
+# ARRIS VIP4302 – vizuální náhrada dálkového ovladače pro Home Assistant
+# ----------------------------------------------------------------------------
+# Vyžaduje HACS kartu generic-remote-control-card:
+#   https://github.com/dimagoltsman/generic-remote-control-card
+# + vlastní šablonu "arris_vip4302" z tohoto repozitáře
+#   (home-assistant/remotes/arris_vip4302/remote-html.js), která vizuálně
+#   kopíruje fyzický ovladač ARRIS AURA RCL (číselná klávesnice, cluster
+#   hlasitost/EPG/mute/kanál, HOME+MENU, kruhový d-pad s OK, BACK+lupa,
+#   4 barevná tlačítka, TV/REC/VOD, dva řádky transport tlačítek).
 #
-#  Instalace:
-#    1. HACS -> Frontend -> (...) -> Custom repositories
-#       URL: https://github.com/dimagoltsman/generic-remote-control-card
-#       Kategorie: Lovelace
-#    2. Stahnout, reload HA
-#    3. Vloz tuhle kartu do dashboardu (Manualni/YAML editor)
+# Instalace šablony: zkopíruj
+#   home-assistant/remotes/arris_vip4302/remote-html.js
+# do
+#   /config/www/community/generic-remote-control-card/remotes/arris_vip4302/remote-html.js
+# (vedle "simple", "lg_new" atd. — karta si šablonu tahá z
+# /hacsfiles/generic-remote-control-card/remotes/<template>/remote-html.js).
 #
-#  Poznamka: sablona "simple" ma pevnou sadu tlacitek - cisla,
-#  barevna tlacitka a PLAY/REC/VOD do ni nejdou pridat. Pro presnou
-#  kopii fyzickeho ovladace pouzij radeji home-assistant/dashboard.yaml
-#  (vestavene HA karty, plne prizpusobitelne).
-# =====================================================================
+# Karta posílá mqtt.publish na topic arris/vip4302/cmd s payloadem = jméno
+# příkazu z tabulky COMMANDS ve firmwaru (viz firmware/arris_mqtt_hid.ino).
+# ============================================================================
+
 type: custom:generic-remote-control-card
 name: Arris VIP4302
-remote_template: simple
+remote_template: arris_vip4302
 buttons:
+
+  # --- POWER ---
   power:
     call: mqtt.publish
     data:
       topic: arris/vip4302/cmd
       payload: POWER
-  mute:
-    call: mqtt.publish
-    data:
-      topic: arris/vip4302/cmd
-      payload: MUTE
-  volplus:
-    call: mqtt.publish
-    data:
-      topic: arris/vip4302/cmd
-      payload: VOL_UP
-  volmin:
-    call: mqtt.publish
-    data:
-      topic: arris/vip4302/cmd
-      payload: VOL_DOWN
-  channelup:
-    call: mqtt.publish
-    data:
-      topic: arris/vip4302/cmd
-      payload: CH_UP
-  channeldown:
-    call: mqtt.publish
-    data:
-      topic: arris/vip4302/cmd
-      payload: CH_DOWN
-  top:
+
+  # --- SMĚROVÝ KŘÍŽ ---
+  up:
     call: mqtt.publish
     data:
       topic: arris/vip4302/cmd
       payload: UP
-  bottom:
+  down:
     call: mqtt.publish
     data:
       topic: arris/vip4302/cmd
@@ -74,25 +58,135 @@ buttons:
     data:
       topic: arris/vip4302/cmd
       payload: OK
+
+  # --- BACK / MENU / HOME ---
   back:
     call: mqtt.publish
     data:
       topic: arris/vip4302/cmd
       payload: BACK
-  home:
-    call: mqtt.publish
-    data:
-      topic: arris/vip4302/cmd
-      payload: HOME
   menu:
     call: mqtt.publish
     data:
       topic: arris/vip4302/cmd
       payload: MENU
+  home:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: HOME
+
+  # --- INFO / TEXT (teletext) ---
   info:
     call: mqtt.publish
     data:
       topic: arris/vip4302/cmd
       payload: INFO
-  netflix: null
-  youtube: null
+  text:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: TELETEXT
+
+  # --- VOLUME / MUTE ---
+  volup:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: VOL_UP
+  voldown:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: VOL_DOWN
+  mute:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: MUTE
+
+  # --- KANÁLY (CH+/CH-) ---
+  chup:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: CH_UP
+  chdown:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: CH_DOWN
+
+  # --- TV / REC ---
+  tv:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: TV
+  rec:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: RECORD
+
+  # --- PŘEHRÁVÁNÍ ---
+  playpause:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: PAUSE
+  stop:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: STOP
+  rewind:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: REV
+  forward:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: FWD
+  previous:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: SKIP_BACK
+  next:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: SKIP_FWD
+
+  # ==========================================================================
+  # TODO — keycode zatím nezjištěn (viz sekce "Zjištěné příkazy" v README).
+  # Dohledej přes Serial Monitor příkazem RAW:mod:code, doplň do tabulky
+  # COMMANDS ve firmwaru a pak zde nahraď "null" stejným blokem call/data
+  # s novým jménem payloadu.
+  # ==========================================================================
+  button0: null
+  button1: null
+  button2: null
+  button3: null
+  button4: null
+  button5: null
+  button6: null
+  button7: null
+  button8: null
+  button9: null
+  epg: null       # EPG průvodce — CH_LIST v tabulce je "seznam kanálů", ne EPG
+  search: null    # lupa / hledání
+  vod: null       # VOD tlačítko
+  colorred: null
+  colorgreen: null
+  coloryellow: null
+  colorblue: null
+
+style: |
+  ha-card {
+    background: transparent;
+    box-shadow: none;
+  }
