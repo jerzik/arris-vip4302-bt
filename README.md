@@ -150,7 +150,7 @@ Standardní šablony karty `generic-remote-control-card` (`simple`, `lg_new`, `m
 home-assistant/remotes/arris_vip4302/remote-html.js
 ```
 
-Šablona vizuálně kopíruje fyzický ovladač 1:1 — zaoblené černé tělo, kruhové POWER tlačítko vpravo nahoře, číselná klávesnice 1–9 + TEXT/0/INFO, cluster hlasitost (+/−) / EPG / MUTE / kanál (CH +/−), HOME + MENU, kruhový d-pad s OK uprostřed, BACK + hledání (lupa), 4 barevná tlačítka (červená/zelená/žlutá/modrá), TV/REC/VOD a dva řádky transport tlačítek (rewind/play-pause/forward, previous/stop/next). Tlačítka hlasitosti a skoku po programu (CH +/−) mají zvětšené ikony (~30 %) pro lepší čitelnost.
+Šablona vizuálně kopíruje fyzický ovladač 1:1 — zaoblené černé tělo, kruhové POWER tlačítko vpravo nahoře, číselná klávesnice 1–9 + TEXT/0/INFO, cluster hlasitost (+/−) / EPG / MUTE / kanál (CH +/−), kruhový d-pad s OK uprostřed, vlevo od něj svisle MENU + HOME, vpravo od něj svislý sloupec options (ikona) / modrá / žlutá / zelená / BACK (zpět) / červená — přesně podle rozmístění na originálním ovladači, TV/REC/VOD a dva řádky transport tlačítek (rewind/play-pause/forward, previous/stop/next). Tlačítka hlasitosti a skoku po programu (CH +/−) mají zvětšené ikony (~30 %) pro lepší čitelnost.
 
 **Instalace šablony:**
 
@@ -180,6 +180,7 @@ Tenhle projekt je **Arduino firmware + ukázková HA dashboard konfigurace + vla
 
 ## Changelog
 
+- **v1.2b** — oprava rozmístění tlačítek kolem d-padu podle fotek originálního ovladače ARRIS: MENU + HOME jsou vlevo od kolečka, vpravo svislý sloupec options / modrá / žlutá / zelená / BACK / červená (dřív byly v samostatných řádcích nad a pod kolečkem). Větší d-pad, širší tělo ovladače. ID tlačítek beze změny — MQTT mapování v dashboardu není potřeba upravovat.
 - **v1.1b** — přidána vlastní šablona `arris_vip4302` pro `generic-remote-control-card` (vizuálně věrná kopie fyzického ovladače), aktualizovaná `dashboard-hacs-generic-remote-card.yaml` napojená na aktuální MQTT keymap, zvětšené ikony hlasitosti a kanálu (+30 %).
 - **v1.0b** — první veřejná verze: USB HID + MQTT most, firmware, HA dashboard (`grid`+`button`), zjištěný keymap.
 
