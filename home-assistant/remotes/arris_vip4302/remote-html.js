@@ -5,7 +5,18 @@
  * Modeluje fyzický ovladač ARRIS AURA RCL (k boxu ARRIS VIP4302).
  * Používá se společně s jerzik/arris-vip4302-bt (ESP32-S3 USB-HID + MQTT most).
  *
- * V dashboardu: remote_template: arris_vip4302
+ * Instalace: ulož tento soubor jako
+ *   /config/www/community/generic-remote-control-card/remotes/arris_vip4302/remote-html.js
+ * (cesta MUSÍ být přesně "remotes/arris_vip4302/remote-html.js" vedle "simple", "lg_new" atd.,
+ * protože karta si šablonu natahuje z /hacsfiles/generic-remote-control-card/remotes/<template>/remote-html.js)
+ *
+ * V dashboardu pak: remote_template: arris_vip4302
+ *
+ * v1.2 — oprava rozmístění tlačítek kolem d-padu podle fotek originálního
+ * ovladače: menu + home jsou nalepené VLEVO od kolečka (svislý sloupec),
+ * VPRAVO od kolečka je svislý sloupec: options ikona, modrá, žlutá, zelená,
+ * ikona zpět, červená. Tlačítka ID zůstávají stejná (menu, home, search,
+ * back, colorred/green/yellow/blue) — jen změna pozice v layoutu.
  */
 
 window.getRemoteHtml_arris_vip4302 = function (config) {
@@ -64,14 +75,13 @@ window.getRemoteHtml_arris_vip4302 = function (config) {
         </div>
       </div>
 
-      <!-- HOME / MENU -->
-      <div class="row home-menu-row">
-        ${btn("home", "&#8962;", "circle small-circle")}
-        ${btn("menu", "&#9776;", "circle small-circle")}
-      </div>
+      <!-- D-PAD SECTION: menu/home flank left, d-pad center, options/colors/back flank right -->
+      <div class="row dpad-section">
+        <div class="dpad-flank dpad-flank-left">
+          ${btn("menu", "&#9776;", "circle flank-circle")}
+          ${btn("home", "&#8962;", "circle flank-circle")}
+        </div>
 
-      <!-- D-PAD -->
-      <div class="row dpad-row">
         <div class="dpad">
           ${btn("up", "&#9650;", "dpad-btn dpad-up")}
           ${btn("left", "&#9664;", "dpad-btn dpad-left")}
@@ -79,20 +89,15 @@ window.getRemoteHtml_arris_vip4302 = function (config) {
           ${btn("right", "&#9654;", "dpad-btn dpad-right")}
           ${btn("down", "&#9660;", "dpad-btn dpad-down")}
         </div>
-      </div>
 
-      <!-- BACK / SEARCH -->
-      <div class="row back-search-row">
-        ${btn("back", "&#8630;", "circle small-circle")}
-        ${btn("search", "&#128269;", "circle small-circle")}
-      </div>
-
-      <!-- COLOR BUTTONS -->
-      <div class="row color-row">
-        ${btn("colorred", "", "dot dot-red")}
-        ${btn("colorgreen", "", "dot dot-green")}
-        ${btn("coloryellow", "", "dot dot-yellow")}
-        ${btn("colorblue", "", "dot dot-blue")}
+        <div class="dpad-flank dpad-flank-right">
+          ${btn("search", "&#9776;&#65039;", "circle flank-circle flank-icon")}
+          ${btn("colorblue", "", "dot dot-blue flank-dot")}
+          ${btn("coloryellow", "", "dot dot-yellow flank-dot")}
+          ${btn("colorgreen", "", "dot dot-green flank-dot")}
+          ${btn("back", "&#8630;", "circle flank-circle flank-icon")}
+          ${btn("colorred", "", "dot dot-red flank-dot")}
+        </div>
       </div>
 
       <!-- TV / REC / VOD -->
@@ -136,7 +141,7 @@ window.getRemoteStyle_arris_vip4302 = function (config) {
     padding: 8px 0;
   }
   .arris-body {
-    width: 260px;
+    width: 300px;
     background: linear-gradient(180deg, #2b2b2e, #1a1a1c);
     border-radius: 28px;
     padding: 16px 14px 20px 14px;
@@ -175,7 +180,7 @@ window.getRemoteStyle_arris_vip4302 = function (config) {
   .circle.power { width: 34px; height: 34px; font-size: 16px; background:#000; color:#e0e0e0; }
   .circle.small-circle { width: 40px; height: 40px; font-size: 16px; }
 
-  /* cluster (vol / epg / ch) */
+  /* cluster (vol / epg / ch) — enlarged +30% */
   .cluster-row { align-items: center; gap: 10px; margin-top: 4px; }
   .cluster-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
   .cluster-col-mid { gap: 8px; }
@@ -184,36 +189,45 @@ window.getRemoteStyle_arris_vip4302 = function (config) {
   .label-ch { font-size: 14px; letter-spacing: 1px; color:#9a9a9a; }
   .pill.small-pill { width: 54px; height: 22px; border-radius: 11px; font-size: 10px; letter-spacing: 0.5px; }
 
-  /* home / menu */
-  .home-menu-row { gap: 60px; margin-top: 2px; }
+  /* d-pad section: left flank (menu/home) + dpad + right flank (options/colors/back) */
+  .dpad-section { align-items: center; gap: 10px; margin-top: 6px; }
 
-  /* dpad */
-  .dpad-row { margin-top: 4px; }
+  .dpad-flank {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .flank-circle {
+    width: 34px; height: 34px; font-size: 15px;
+  }
+  .flank-icon { font-size: 13px; }
+
+  .flank-dot { width: 18px; height: 18px; }
+
   .dpad {
     position: relative;
-    width: 170px; height: 170px;
+    width: 188px; height: 188px;
     border-radius: 50%;
     background: #303034;
     box-shadow: inset 0 0 0 1px #000, 0 2px 6px rgba(0,0,0,0.4);
+    flex: none;
   }
   .dpad-btn { position: absolute; background: transparent; box-shadow: none; color: #b8b8b8; }
-  .dpad-up    { top: 6px;  left: 50%; transform: translateX(-50%); width: 40px; height: 34px; font-size: 16px; }
-  .dpad-down  { bottom: 6px; left: 50%; transform: translateX(-50%); width: 40px; height: 34px; font-size: 16px; }
-  .dpad-left  { left: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 40px; font-size: 16px; }
-  .dpad-right { right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 40px; font-size: 16px; }
+  .dpad-up    { top: 6px;  left: 50%; transform: translateX(-50%); width: 44px; height: 38px; font-size: 17px; }
+  .dpad-down  { bottom: 6px; left: 50%; transform: translateX(-50%); width: 44px; height: 38px; font-size: 17px; }
+  .dpad-left  { left: 6px; top: 50%; transform: translateY(-50%); width: 38px; height: 44px; font-size: 17px; }
+  .dpad-right { right: 6px; top: 50%; transform: translateY(-50%); width: 38px; height: 44px; font-size: 17px; }
   .dpad-ok {
     top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 62px; height: 62px; border-radius: 50%;
-    background: #101012; color: #e6e6e6; font-size: 13px; font-weight: 600;
+    width: 68px; height: 68px; border-radius: 50%;
+    background: #101012; color: #e6e6e6; font-size: 14px; font-weight: 600;
     box-shadow: inset 0 0 0 1px #000, 0 2px 4px rgba(0,0,0,0.5);
   }
 
-  /* back / search */
-  .back-search-row { gap: 70px; margin-top: 2px; }
-
-  /* color dots */
-  .color-row { gap: 18px; margin-top: 4px; }
-  .dot { width: 20px; height: 20px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4); }
+  /* color dots (now inline in the right flank) */
+  .dot { border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4); }
   .dot-red    { background: #d24141; }
   .dot-green  { background: #3fae4f; }
   .dot-yellow { background: #d9c23a; }
