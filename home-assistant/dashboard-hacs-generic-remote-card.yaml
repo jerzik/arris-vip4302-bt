@@ -163,7 +163,7 @@ buttons:
 
   # --- ČÍSLICE (horní řada klávesnice, HID 0x1E–0x27 bez modifikátoru;
   #     na české klávesnici +ěščřžýáíé). RAW funguje i se starším firmwarem,
-  #     od v1.2b firmware zná i jména DIGIT_0 … DIGIT_9. ---
+  #     od v1.3b firmware zná i jména DIGIT_0 … DIGIT_9. ---
   button1:
     call: mqtt.publish
     data:

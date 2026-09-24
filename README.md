@@ -145,7 +145,7 @@ Po nahrání sketche do ESP32-S3 lze příkazy testovat i přímo v Arduino Seri
 
 **Zatím nezjištěné** (čekají na dohledání přes `RAW:mod:code` v Serial Monitoru): TEXT, EPG, hledání (lupa), PLAY, REC, VOD, prev/next skladba. Barevná tlačítka (červená/zelená/žlutá/modrá) se neřeší — v kartě nejsou.
 
-**Číslice** = horní řada běžné klávesnice (HID `0x1E`–`0x27` bez modifikátoru; na české klávesnici `+ěščřžýáíé`). HID posílá pozici klávesy, ne znak, takže layout nehraje roli. Dashboardy posílají `RAW:00:1E` … `RAW:00:27`, což funguje i se starším firmwarem; od v1.2b firmware zná i jména `DIGIT_0` … `DIGIT_9`.
+**Číslice** = horní řada běžné klávesnice (HID `0x1E`–`0x27` bez modifikátoru; na české klávesnici `+ěščřžýáíé`). HID posílá pozici klávesy, ne znak, takže layout nehraje roli. Dashboardy posílají `RAW:00:1E` … `RAW:00:27`, což funguje i se starším firmwarem; od v1.3b firmware zná i jména `DIGIT_0` … `DIGIT_9`.
 
 ## Home Assistant integrace
 
@@ -175,7 +175,7 @@ home-assistant/remotes/arris_vip4302/remote-html.js
 3. Vlož `home-assistant/dashboard-hacs-generic-remote-card.yaml` jako manuální (YAML) kartu do dashboardu (`remote_template: arris_vip4302`).
 4. Tvrdý refresh prohlížeče (Ctrl+F5), ať se stáhne nová šablona.
 
-> **Aktualizace šablony a cache:** HA posílá `/hacsfiles/…` s `Cache-Control: max-age` 31 dní, takže prohlížeč i mobilní appka můžou dlouho držet starou šablonu. Šablona si od v1.2b bere název ze své složky, takže při aktualizaci stačí nahrát `remote-html.js` do **nové složky** (např. `remotes/arris_vip4302_v12b/`) a v kartě změnit `remote_template` na stejný název. Nová URL = vždy čerstvá verze, bez mazání cache.
+> **Aktualizace šablony a cache:** HA posílá `/hacsfiles/…` s `Cache-Control: max-age` 31 dní, takže prohlížeč i mobilní appka můžou dlouho držet starou šablonu. Šablona si od v1.3b bere název ze své složky, takže při aktualizaci stačí nahrát `remote-html.js` do **nové složky** (např. `remotes/arris_vip4302_v12b/`) a v kartě změnit `remote_template` na stejný název. Nová URL = vždy čerstvá verze, bez mazání cache.
 
 **Namapovaná tlačítka** (podle aktuálně zjištěných keycodů — viz tabulka výše): power, směrovka (up/down/left/right/ok), číslice 0–9, back, menu, home, info, text (teletext), volup/voldown, mute, chup/chdown, tv, rec, playpause, stop, rewind/forward, previous/next.
 
@@ -194,7 +194,8 @@ Tenhle projekt je **Arduino firmware + ukázková HA dashboard konfigurace + vla
 
 ## Changelog
 
-- **v1.2b** — šablona `arris_vip4302` překreslená podle fotky originálního ovladače: 4 kulatá tlačítka v rozích kolem kolečka (HOME ↖, MENU ↗, ZPĚT ↙, LUPA ↘), kolébky hlasitosti a CH + kulaté EPG/MUTE (blok +30 %), hranatá tlačítka s písmeny, kovové OK, SVG ikony; barevná tlačítka odstraněna. Doplněny číslice 0–9 (HID `0x1E`–`0x27`, na CZ klávesnici `+ěščřžýáíé`) do firmwaru (`DIGIT_0`…`DIGIT_9`) i do obou dashboardů (`RAW:00:1E`…`27`, funguje i bez přeflashování). Šablona si bere název ze své složky (obchvat 31denní cache `/hacsfiles`). ID ostatních tlačítek beze změny.
+- **v1.3b** — šablona `arris_vip4302` překreslená podle fotky originálního ovladače: 4 kulatá tlačítka v rozích kolem kolečka (HOME ↖, MENU ↗, ZPĚT ↙, LUPA ↘), kolébky hlasitosti a CH + kulaté EPG/MUTE (blok +30 %), hranatá tlačítka s písmeny, kovové OK, SVG ikony; barevná tlačítka odstraněna. Doplněny číslice 0–9 (HID `0x1E`–`0x27`, na CZ klávesnici `+ěščřžýáíé`) do firmwaru (`DIGIT_0`…`DIGIT_9`) i do obou dashboardů (`RAW:00:1E`…`27`, funguje i bez přeflashování). Šablona si bere název ze své složky (obchvat 31denní cache `/hacsfiles`). ID ostatních tlačítek beze změny.
+- **v1.2b** — první oprava rozmístění tlačítek kolem d-padu (MENU + HOME vlevo, sloupec options / barvy / BACK vpravo); v1.3b ji nahrazuje přesným layoutem podle fotky originálu.
 - **v1.1b** — přidána vlastní šablona `arris_vip4302` pro `generic-remote-control-card` (vizuálně věrná kopie fyzického ovladače), aktualizovaná `dashboard-hacs-generic-remote-card.yaml` napojená na aktuální MQTT keymap, zvětšené ikony hlasitosti a kanálu (+30 %).
 - **v1.0b** — první veřejná verze: USB HID + MQTT most, firmware, HA dashboard (`grid`+`button`), zjištěný keymap.
 
