@@ -107,6 +107,18 @@ static const Cmd COMMANDS[] = {
   {"BACK",      0x00, 0x43, 0},
   {"BACK2",     0x00, 0x45, 0},
 
+  // --- cislice (horni rada klavesnice; na CZ layoutu +escrzyaie) ---
+  {"DIGIT_1",   0x00, 0x1E, 0},
+  {"DIGIT_2",   0x00, 0x1F, 0},
+  {"DIGIT_3",   0x00, 0x20, 0},
+  {"DIGIT_4",   0x00, 0x21, 0},
+  {"DIGIT_5",   0x00, 0x22, 0},
+  {"DIGIT_6",   0x00, 0x23, 0},
+  {"DIGIT_7",   0x00, 0x24, 0},
+  {"DIGIT_8",   0x00, 0x25, 0},
+  {"DIGIT_9",   0x00, 0x26, 0},
+  {"DIGIT_0",   0x00, 0x27, 0},
+
   // --- s modifikatorem (empiricky zjisteno na krabici) ---
   {"POWER",      0x01, 0x29, 0},
   {"VOL_DOWN",   0x01, 0x3B, 0},

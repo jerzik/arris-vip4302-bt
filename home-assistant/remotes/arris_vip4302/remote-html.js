@@ -2,123 +2,132 @@
  * Custom remote_template "arris_vip4302" pro generic-remote-control-card
  * (https://github.com/dimagoltsman/generic-remote-control-card)
  *
- * Modeluje fyzický ovladač ARRIS AURA RCL (k boxu ARRIS VIP4302).
+ * Modeluje fyzický ovladač ARRIS (k boxu ARRIS VIP4302) podle fotky originálu.
  * Používá se společně s jerzik/arris-vip4302-bt (ESP32-S3 USB-HID + MQTT most).
  *
  * Instalace: ulož tento soubor jako
  *   /config/www/community/generic-remote-control-card/remotes/arris_vip4302/remote-html.js
- * (cesta MUSÍ být přesně "remotes/arris_vip4302/remote-html.js" vedle "simple", "lg_new" atd.,
- * protože karta si šablonu natahuje z /hacsfiles/generic-remote-control-card/remotes/<template>/remote-html.js)
- *
  * V dashboardu pak: remote_template: arris_vip4302
  *
- * v1.2 — oprava rozmístění tlačítek kolem d-padu podle fotek originálního
- * ovladače: menu + home jsou nalepené VLEVO od kolečka (svislý sloupec),
- * VPRAVO od kolečka je svislý sloupec: options ikona, modrá, žlutá, zelená,
- * ikona zpět, červená. Tlačítka ID zůstávají stejná (menu, home, search,
- * back, colorred/green/yellow/blue) — jen změna pozice v layoutu.
+ * Název šablony se odvozuje z cesty souboru (remotes/<název>/remote-html.js),
+ * takže stejný soubor funguje i ve verzované složce (např. arris_vip4302_v12d).
+ * HA posílá /hacsfiles s Cache-Control max-age 31 dní — nová složka = nová URL
+ * = prohlížeč/appka si vždy stáhne aktuální verzi bez mazání cache.
+ *
+ * Layout (shora dolů):
+ *   power | 1-9 (s písmeny) | TEXT 0 INFO |
+ *   kolébka hlasitosti · EPG + mute · kolébka CH |
+ *   home ↖  menu ↗ — kolečko s OK — zpět ↙  lupa ↘ |
+ *   TV REC VOD | « ⏯ » | |« □ »|
+ * Barevná tlačítka záměrně vynechána.
  */
 
-window.getRemoteHtml_arris_vip4302 = function (config) {
-  const cls = "myButton-arris_vip4302";
+(function () {
+const T = (function () {
+  try {
+    const m = document.currentScript && document.currentScript.src.match(/\/remotes\/([A-Za-z0-9_]+)\/remote-html\.js/);
+    if (m) return m[1];
+  } catch (e) {}
+  return "arris_vip4302";
+})();
 
+const svg = (inner) =>
+  `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+
+const I = {
+  power:   svg('<path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/>'),
+  home:    svg('<path d="M4 11l8-7 8 7v9H4z"/>'),
+  menu:    svg('<path d="M5 7h14M5 12h14M5 17h14"/>'),
+  back:    svg('<path d="M9 6L5 10l4 4"/><path d="M5 10h9a5 5 0 0 1 0 10h-3"/>'),
+  search:  svg('<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>'),
+  mute:    svg('<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9l5 6M21 9l-5 6"/>'),
+  vol:     svg('<path d="M4 18L20 7v11z" fill="currentColor" stroke="none"/>'),
+  up:      svg('<path d="M6 15l6-6 6 6"/>'),
+  down:    svg('<path d="M6 9l6 6 6-6"/>'),
+  left:    svg('<path d="M15 6l-6 6 6 6"/>'),
+  right:   svg('<path d="M9 6l6 6-6 6"/>'),
+  rewind:  svg('<path d="M12 6l-6 6 6 6M19 6l-6 6 6 6"/>'),
+  forward: svg('<path d="M12 6l6 6-6 6M5 6l6 6-6 6"/>'),
+  play:    svg('<path d="M4 6v12l8-6z" fill="currentColor"/><path d="M16 6v12M20 6v12"/>'),
+  prev:    svg('<path d="M4 6v12"/><path d="M13 6l-6 6 6 6M20 6l-6 6 6 6"/>'),
+  next:    svg('<path d="M20 6v12"/><path d="M11 6l6 6-6 6M4 6l6 6-6 6"/>'),
+  stop:    svg('<rect x="6" y="6" width="12" height="12" rx="1"/>'),
+};
+
+window["getRemoteHtml_" + T] = function (config) {
+  const cls = "myButton-" + T;
   const btn = (id, label, extraClass = "") =>
     `<div id="${id}" class="${cls} arris-btn ${extraClass}">${label}</div>`;
+  const num = (id, n, sub) =>
+    btn(id, `<span class="n">${n}</span><span class="s">${sub}</span>`, "key");
 
   return `
   <div class="arris-remote">
     ${config.name ? `<h1>${config.name}</h1>` : ""}
     <div class="arris-body">
 
-      <!-- POWER -->
       <div class="row row-power">
-        ${btn("power", "&#9211;", "circle power")}
+        ${btn("power", I.power, "circle power")}
       </div>
 
-      <!-- NUMERIC KEYPAD -->
-      <div class="row keypad-row">
-        ${btn("button1", "1")}
-        ${btn("button2", "2")}
-        ${btn("button3", "3")}
-      </div>
-      <div class="row keypad-row">
-        ${btn("button4", "4")}
-        ${btn("button5", "5")}
-        ${btn("button6", "6")}
-      </div>
-      <div class="row keypad-row">
-        ${btn("button7", "7")}
-        ${btn("button8", "8")}
-        ${btn("button9", "9")}
-      </div>
-      <div class="row keypad-row">
-        ${btn("text", "TEXT", "wide")}
-        ${btn("button0", "0")}
-        ${btn("info", "INFO", "wide")}
+      <div class="grid3">
+        ${num("button1", "1", "&nbsp;")}
+        ${num("button2", "2", "ABC")}
+        ${num("button3", "3", "DEF")}
+        ${num("button4", "4", "GHI")}
+        ${num("button5", "5", "JKL")}
+        ${num("button6", "6", "MNO")}
+        ${num("button7", "7", "PQRS")}
+        ${num("button8", "8", "TUV")}
+        ${num("button9", "9", "WXYZ")}
+        ${btn("text", "TEXT", "key key-word")}
+        ${num("button0", "0", "&#9251;")}
+        ${btn("info", "INFO", "key key-word")}
       </div>
 
-      <!-- VOLUME / EPG / CHANNEL cluster -->
-      <div class="row cluster-row">
-        <div class="cluster-col">
-          ${btn("volup", "+", "small")}
-          <div class="icon-only">&#128266;</div>
-          ${btn("voldown", "&minus;", "small")}
+      <!-- hlasitost / EPG + mute / CH -->
+      <div class="grid3 cluster">
+        <div class="rocker">
+          ${btn("volup", "+", "rocker-half rocker-top")}
+          <div class="rocker-mid">${I.vol}</div>
+          ${btn("voldown", "&minus;", "rocker-half rocker-bot")}
         </div>
-        <div class="cluster-col cluster-col-mid">
-          ${btn("epg", "EPG", "pill small-pill")}
-          ${btn("mute", "&#128263;", "circle small-circle")}
+        <div class="cluster-mid">
+          ${btn("epg", "EPG", "circle mid-circle epg")}
+          ${btn("mute", I.mute, "circle mid-circle")}
         </div>
-        <div class="cluster-col">
-          ${btn("chup", "+", "small")}
-          <div class="icon-only label-ch">CH</div>
-          ${btn("chdown", "&minus;", "small")}
+        <div class="rocker">
+          ${btn("chup", "+", "rocker-half rocker-top")}
+          <div class="rocker-mid ch">CH</div>
+          ${btn("chdown", "&minus;", "rocker-half rocker-bot")}
         </div>
       </div>
 
-      <!-- D-PAD SECTION: menu/home flank left, d-pad center, options/colors/back flank right -->
-      <div class="row dpad-section">
-        <div class="dpad-flank dpad-flank-left">
-          ${btn("menu", "&#9776;", "circle flank-circle")}
-          ${btn("home", "&#8962;", "circle flank-circle")}
-        </div>
-
+      <!-- kolečko + 4 rohová tlačítka -->
+      <div class="dpad-area">
+        ${btn("home", I.home, "circle corner corner-tl")}
+        ${btn("menu", I.menu, "circle corner corner-tr")}
+        ${btn("back", I.back, "circle corner corner-bl")}
+        ${btn("search", I.search, "circle corner corner-br")}
         <div class="dpad">
-          ${btn("up", "&#9650;", "dpad-btn dpad-up")}
-          ${btn("left", "&#9664;", "dpad-btn dpad-left")}
-          ${btn("ok", "OK", "dpad-btn dpad-ok")}
-          ${btn("right", "&#9654;", "dpad-btn dpad-right")}
-          ${btn("down", "&#9660;", "dpad-btn dpad-down")}
-        </div>
-
-        <div class="dpad-flank dpad-flank-right">
-          ${btn("search", "&#9776;&#65039;", "circle flank-circle flank-icon")}
-          ${btn("colorblue", "", "dot dot-blue flank-dot")}
-          ${btn("coloryellow", "", "dot dot-yellow flank-dot")}
-          ${btn("colorgreen", "", "dot dot-green flank-dot")}
-          ${btn("back", "&#8630;", "circle flank-circle flank-icon")}
-          ${btn("colorred", "", "dot dot-red flank-dot")}
+          ${btn("up", I.up, "dpad-btn dpad-up")}
+          ${btn("left", I.left, "dpad-btn dpad-left")}
+          ${btn("right", I.right, "dpad-btn dpad-right")}
+          ${btn("down", I.down, "dpad-btn dpad-down")}
+          ${btn("ok", "", "dpad-ok")}
         </div>
       </div>
 
-      <!-- TV / REC / VOD -->
-      <div class="row tvrecvod-row">
-        ${btn("tv", "TV", "pill")}
-        ${btn("rec", "REC", "pill pill-rec")}
-        ${btn("vod", "VOD", "pill")}
-      </div>
-
-      <!-- TRANSPORT 1 -->
-      <div class="row transport-row">
-        ${btn("rewind", "&#9198;", "circle small-circle")}
-        ${btn("playpause", "&#9199;", "circle small-circle")}
-        ${btn("forward", "&#9197;", "circle small-circle")}
-      </div>
-
-      <!-- TRANSPORT 2 -->
-      <div class="row transport-row">
-        ${btn("previous", "&#9194;", "circle small-circle")}
-        ${btn("stop", "&#9209;", "circle small-circle")}
-        ${btn("next", "&#9193;", "circle small-circle")}
+      <div class="grid3">
+        ${btn("tv", "TV", "key key-big")}
+        ${btn("rec", "REC", "key key-big rec")}
+        ${btn("vod", "VOD", "key key-big")}
+        ${btn("rewind", I.rewind, "key key-icon")}
+        ${btn("playpause", I.play, "key key-icon")}
+        ${btn("forward", I.forward, "key key-icon")}
+        ${btn("previous", I.prev, "key key-icon")}
+        ${btn("stop", I.stop, "key key-icon")}
+        ${btn("next", I.next, "key key-icon")}
       </div>
 
     </div>
@@ -126,7 +135,7 @@ window.getRemoteHtml_arris_vip4302 = function (config) {
   `;
 };
 
-window.getRemoteStyle_arris_vip4302 = function (config) {
+window["getRemoteStyle_" + T] = function (config) {
   return `
   :host { display:block; }
   h1 {
@@ -137,108 +146,95 @@ window.getRemoteStyle_arris_vip4302 = function (config) {
   }
   .arris-remote {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     padding: 8px 0;
   }
   .arris-body {
-    width: 300px;
-    background: linear-gradient(180deg, #2b2b2e, #1a1a1c);
-    border-radius: 28px;
-    padding: 16px 14px 20px 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.45), inset 0 0 0 1px #000;
+    width: 250px;
+    background: radial-gradient(120% 60% at 50% 0%, #3a3b3f 0%, #2c2d31 55%, #242528 100%);
+    border-radius: 34px 34px 40px 40px;
+    padding: 14px 18px 26px 18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.5), inset 0 0 0 1px #111, inset 0 1px 0 rgba(255,255,255,0.08);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
   }
-  .row { display: flex; justify-content: center; align-items: center; gap: 8px; }
-  .row-power { justify-content: flex-end; padding-right: 4px; }
+  .row { display: flex; justify-content: center; align-items: center; }
+  .row-power { justify-content: flex-end; margin-bottom: -4px; }
 
   .arris-btn {
     cursor: pointer;
-    color: #cfcfcf;
-    background: #38383c;
+    color: #e4e4e4;
+    background: linear-gradient(180deg, #34353a, #26272b);
     display: flex;
     align-items: center;
     justify-content: center;
     user-select: none;
-    box-shadow: inset 0 0 0 1px #000, 0 1px 0 rgba(255,255,255,0.05);
-    transition: background 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 0 0 1px #101012, inset 0 1px 0 rgba(255,255,255,0.07), 0 2px 3px rgba(0,0,0,0.45);
+    transition: filter 0.08s ease;
+    font-family: Arial, Helvetica, sans-serif;
   }
-  .arris-btn:active { background: #4a4a50; }
-
-  /* keypad */
-  .keypad-row { gap: 6px; }
-  .keypad-row .arris-btn {
-    width: 68px; height: 30px;
-    border-radius: 15px;
-    font-size: 13px;
-  }
-  .keypad-row .arris-btn.wide { width: 68px; font-size: 10px; letter-spacing: 0.5px; }
-
-  /* generic circle */
+  .arris-btn:active { filter: brightness(1.4); }
   .circle { border-radius: 50%; }
-  .circle.power { width: 34px; height: 34px; font-size: 16px; background:#000; color:#e0e0e0; }
-  .circle.small-circle { width: 40px; height: 40px; font-size: 16px; }
 
-  /* cluster (vol / epg / ch) — enlarged +30% */
-  .cluster-row { align-items: center; gap: 10px; margin-top: 4px; }
-  .cluster-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-  .cluster-col-mid { gap: 8px; }
-  .arris-btn.small { width: 39px; height: 31px; border-radius: 16px; font-size: 18px; }
-  .icon-only { color: #9a9a9a; font-size: 18px; display:flex; align-items:center; justify-content:center; height: 26px; }
-  .label-ch { font-size: 14px; letter-spacing: 1px; color:#9a9a9a; }
-  .pill.small-pill { width: 54px; height: 22px; border-radius: 11px; font-size: 10px; letter-spacing: 0.5px; }
+  .circle.power { width: 30px; height: 30px; font-size: 16px; color: #bdbdbd;
+    background: radial-gradient(circle at 40% 35%, #4a4b50, #2b2c30); }
 
-  /* d-pad section: left flank (menu/home) + dpad + right flank (options/colors/back) */
-  .dpad-section { align-items: center; gap: 10px; margin-top: 6px; }
+  /* 3 sloupce — klávesnice, TV/REC/VOD, transport */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 12px; }
 
-  .dpad-flank {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+  .key { height: 38px; border-radius: 10px; flex-direction: column; line-height: 1; }
+  .key .n { font-size: 17px; font-weight: 600; }
+  .key .s { font-size: 7px; letter-spacing: 0.5px; margin-top: 2px; color: #c9c9c9; }
+  .key-word { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; }
+  .key-big { height: 42px; font-size: 16px; font-weight: 700; }
+  .key-big.rec { color: #e0342f; }
+  .key-icon { height: 42px; font-size: 22px; }
+
+  /* hlasitost / EPG / CH — blok o 30 % větší */
+  .cluster { align-items: center; margin-top: 2px; }
+  .rocker {
+    display: flex; flex-direction: column; align-items: stretch;
+    height: 124px; border-radius: 12px; overflow: hidden;
+    background: linear-gradient(180deg, #34353a, #26272b);
+    box-shadow: inset 0 0 0 1px #101012, inset 0 1px 0 rgba(255,255,255,0.07), 0 2px 3px rgba(0,0,0,0.45);
   }
+  .rocker-half { flex: 1; background: transparent; box-shadow: none; font-size: 22px; font-weight: 300; border-radius: 0; }
+  .rocker-top { align-items: flex-start; padding-top: 6px; }
+  .rocker-bot { align-items: flex-end; padding-bottom: 8px; }
+  .rocker-mid { height: 22px; display: flex; align-items: center; justify-content: center; color: #e4e4e4; font-size: 18px; }
+  .rocker-mid.ch { font-size: 14px; font-weight: 700; letter-spacing: 0.5px; font-family: Arial, Helvetica, sans-serif; }
+  .cluster-mid { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .mid-circle { width: 44px; height: 44px; font-size: 20px; }
+  .mid-circle.epg { font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
 
-  .flank-circle {
-    width: 34px; height: 34px; font-size: 15px;
-  }
-  .flank-icon { font-size: 13px; }
-
-  .flank-dot { width: 18px; height: 18px; }
+  /* kolečko + rohová tlačítka */
+  .dpad-area { position: relative; height: 222px; display: flex; align-items: center; justify-content: center; margin: 2px 0; }
+  .corner { position: absolute; width: 34px; height: 34px; font-size: 17px; }
+  .corner-tl { top: 0; left: 0; }
+  .corner-tr { top: 0; right: 0; }
+  .corner-bl { bottom: 0; left: 0; }
+  .corner-br { bottom: 0; right: 0; }
 
   .dpad {
     position: relative;
-    width: 188px; height: 188px;
-    border-radius: 50%;
-    background: #303034;
-    box-shadow: inset 0 0 0 1px #000, 0 2px 6px rgba(0,0,0,0.4);
-    flex: none;
+    width: 166px; height: 166px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #45464b 0%, #34353a 55%, #2a2b2f 100%);
+    box-shadow: inset 0 0 0 1px #0e0e10, inset 0 2px 1px rgba(255,255,255,0.08), 0 4px 10px rgba(0,0,0,0.55);
   }
-  .dpad-btn { position: absolute; background: transparent; box-shadow: none; color: #b8b8b8; }
-  .dpad-up    { top: 6px;  left: 50%; transform: translateX(-50%); width: 44px; height: 38px; font-size: 17px; }
-  .dpad-down  { bottom: 6px; left: 50%; transform: translateX(-50%); width: 44px; height: 38px; font-size: 17px; }
-  .dpad-left  { left: 6px; top: 50%; transform: translateY(-50%); width: 38px; height: 44px; font-size: 17px; }
-  .dpad-right { right: 6px; top: 50%; transform: translateY(-50%); width: 38px; height: 44px; font-size: 17px; }
+  .dpad-btn { position: absolute; background: transparent; box-shadow: none; color: #e4e4e4; font-size: 18px; }
+  .dpad-up    { top: 4px;    left: 50%; transform: translateX(-50%); width: 60px; height: 44px; }
+  .dpad-down  { bottom: 4px; left: 50%; transform: translateX(-50%); width: 60px; height: 44px; }
+  .dpad-left  { left: 4px;   top: 50%;  transform: translateY(-50%); width: 44px; height: 60px; }
+  .dpad-right { right: 4px;  top: 50%;  transform: translateY(-50%); width: 44px; height: 60px; }
   .dpad-ok {
-    top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 68px; height: 68px; border-radius: 50%;
-    background: #101012; color: #e6e6e6; font-size: 14px; font-weight: 600;
-    box-shadow: inset 0 0 0 1px #000, 0 2px 4px rgba(0,0,0,0.5);
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 66px; height: 66px; border-radius: 50%;
+    background: conic-gradient(from 200deg, #9a9ca1, #2e2f33, #7c7e84, #2a2b2f, #a6a8ad, #34353a, #9a9ca1);
+    box-shadow: inset 0 0 0 2px #1a1b1e, 0 2px 5px rgba(0,0,0,0.6);
   }
-
-  /* color dots (now inline in the right flank) */
-  .dot { border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4); }
-  .dot-red    { background: #d24141; }
-  .dot-green  { background: #3fae4f; }
-  .dot-yellow { background: #d9c23a; }
-  .dot-blue   { background: #3a7fd9; }
-
-  /* tv / rec / vod */
-  .tvrecvod-row { gap: 8px; margin-top: 4px; }
-  .pill { width: 66px; height: 30px; border-radius: 15px; font-size: 12px; font-weight: 600; }
-  .pill-rec { color: #e05353; }
-
-  /* transport rows */
-  .transport-row { gap: 22px; margin-top: 2px; }
   `;
 };
+})();

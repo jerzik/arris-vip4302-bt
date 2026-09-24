@@ -5,9 +5,9 @@
 #   https://github.com/dimagoltsman/generic-remote-control-card
 # + vlastní šablonu "arris_vip4302" z tohoto repozitáře
 #   (home-assistant/remotes/arris_vip4302/remote-html.js), která vizuálně
-#   kopíruje fyzický ovladač ARRIS AURA RCL (číselná klávesnice, cluster
-#   hlasitost/EPG/mute/kanál, HOME+MENU, kruhový d-pad s OK, BACK+lupa,
-#   4 barevná tlačítka, TV/REC/VOD, dva řádky transport tlačítek).
+#   kopíruje originální ovladač ARRIS (číselná klávesnice s písmeny, kolébky
+#   hlasitosti a CH s EPG/mute uprostřed, kruhový d-pad s OK a 4 tlačítky
+#   v rozích — HOME, MENU, ZPĚT, LUPA —, TV/REC/VOD, dva řádky transportu).
 #
 # Instalace šablony: zkopíruj
 #   home-assistant/remotes/arris_vip4302/remote-html.js
@@ -161,29 +161,69 @@ buttons:
       topic: arris/vip4302/cmd
       payload: SKIP_FWD
 
+  # --- ČÍSLICE (horní řada klávesnice, HID 0x1E–0x27 bez modifikátoru;
+  #     na české klávesnici +ěščřžýáíé). RAW funguje i se starším firmwarem,
+  #     od v1.2b firmware zná i jména DIGIT_0 … DIGIT_9. ---
+  button1:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:1E"
+  button2:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:1F"
+  button3:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:20"
+  button4:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:21"
+  button5:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:22"
+  button6:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:23"
+  button7:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:24"
+  button8:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:25"
+  button9:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:26"
+  button0:
+    call: mqtt.publish
+    data:
+      topic: arris/vip4302/cmd
+      payload: "RAW:00:27"
+
   # ==========================================================================
   # TODO — keycode zatím nezjištěn (viz sekce "Zjištěné příkazy" v README).
   # Dohledej přes Serial Monitor příkazem RAW:mod:code, doplň do tabulky
   # COMMANDS ve firmwaru a pak zde nahraď "null" stejným blokem call/data
   # s novým jménem payloadu.
   # ==========================================================================
-  button0: null
-  button1: null
-  button2: null
-  button3: null
-  button4: null
-  button5: null
-  button6: null
-  button7: null
-  button8: null
-  button9: null
   epg: null       # EPG průvodce — CH_LIST v tabulce je "seznam kanálů", ne EPG
   search: null    # lupa / hledání
   vod: null       # VOD tlačítko
-  colorred: null
-  colorgreen: null
-  coloryellow: null
-  colorblue: null
 
 style: |
   ha-card {

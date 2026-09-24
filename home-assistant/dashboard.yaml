@@ -6,7 +6,7 @@
 #  mqtt.publish na topic arris/vip4302/cmd s payloadem = nazev prikazu
 #  z tabulky COMMANDS ve firmwaru (viz firmware/arris_mqtt_hid.ino).
 #
-#  Tlacitka oznacena "# TODO" cekaji na dohledani keycodu (cisla,
+#  Tlacitka oznacena "# TODO" cekaji na dohledani keycodu (
 #  EPG, TEXT, hledani, PLAY/REC/VOD, prev/next) - viz README.
 # =====================================================================
 type: vertical-stack
@@ -37,17 +37,17 @@ cards:
     columns: 3
     square: false
     cards:
-      - {type: button, name: "1", tap_action: {action: none}}  # TODO
-      - {type: button, name: "2", tap_action: {action: none}}  # TODO
-      - {type: button, name: "3", tap_action: {action: none}}  # TODO
-      - {type: button, name: "4", tap_action: {action: none}}  # TODO
-      - {type: button, name: "5", tap_action: {action: none}}  # TODO
-      - {type: button, name: "6", tap_action: {action: none}}  # TODO
-      - {type: button, name: "7", tap_action: {action: none}}  # TODO
-      - {type: button, name: "8", tap_action: {action: none}}  # TODO
-      - {type: button, name: "9", tap_action: {action: none}}  # TODO
+      - {type: button, name: "1", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:1E"}}}
+      - {type: button, name: "2", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:1F"}}}
+      - {type: button, name: "3", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:20"}}}
+      - {type: button, name: "4", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:21"}}}
+      - {type: button, name: "5", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:22"}}}
+      - {type: button, name: "6", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:23"}}}
+      - {type: button, name: "7", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:24"}}}
+      - {type: button, name: "8", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:25"}}}
+      - {type: button, name: "9", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:26"}}}
       - {type: button, name: "TEXT", tap_action: {action: none}}  # TODO
-      - {type: button, name: "0", tap_action: {action: none}}  # TODO
+      - {type: button, name: "0", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: "RAW:00:27"}}}
       - {type: button, name: "INFO", tap_action: {action: call-service, service: mqtt.publish, service_data: {topic: arris/vip4302/cmd, payload: INFO}}}
 
   # --- EPG / hlasitost ---

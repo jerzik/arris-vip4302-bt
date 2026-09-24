@@ -132,8 +132,20 @@ Po nahrání sketche do ESP32-S3 lze příkazy testovat i přímo v Arduino Seri
 | `CH_DOWN` | 0x01 | 0x5A | kanál − |
 | `SKIP_FWD` | 0x01 | 0x5C | přeskočit vpřed |
 | `SKIP_BACK` | 0x01 | 0x5E | přeskočit zpět |
+| `DIGIT_1` | 0x00 | 0x1E | číslice 1 (CZ klávesnice: `+`) |
+| `DIGIT_2` | 0x00 | 0x1F | číslice 2 (CZ klávesnice: `ě`) |
+| `DIGIT_3` | 0x00 | 0x20 | číslice 3 (CZ klávesnice: `š`) |
+| `DIGIT_4` | 0x00 | 0x21 | číslice 4 (CZ klávesnice: `č`) |
+| `DIGIT_5` | 0x00 | 0x22 | číslice 5 (CZ klávesnice: `ř`) |
+| `DIGIT_6` | 0x00 | 0x23 | číslice 6 (CZ klávesnice: `ž`) |
+| `DIGIT_7` | 0x00 | 0x24 | číslice 7 (CZ klávesnice: `ý`) |
+| `DIGIT_8` | 0x00 | 0x25 | číslice 8 (CZ klávesnice: `á`) |
+| `DIGIT_9` | 0x00 | 0x26 | číslice 9 (CZ klávesnice: `í`) |
+| `DIGIT_0` | 0x00 | 0x27 | číslice 0 (CZ klávesnice: `é`) |
 
-**Zatím nezjištěné** (čekají na dohledání přes `RAW:mod:code` v Serial Monitoru): číslice 0–9, TEXT, EPG, hledání (lupa), PLAY, REC, VOD, prev/next skladba. Barevná tlačítka (červená/zelená/žlutá/modrá) se aktuálně neřeší.
+**Zatím nezjištěné** (čekají na dohledání přes `RAW:mod:code` v Serial Monitoru): TEXT, EPG, hledání (lupa), PLAY, REC, VOD, prev/next skladba. Barevná tlačítka (červená/zelená/žlutá/modrá) se neřeší — v kartě nejsou.
+
+**Číslice** = horní řada běžné klávesnice (HID `0x1E`–`0x27` bez modifikátoru; na české klávesnici `+ěščřžýáíé`). HID posílá pozici klávesy, ne znak, takže layout nehraje roli. Dashboardy posílají `RAW:00:1E` … `RAW:00:27`, což funguje i se starším firmwarem; od v1.2b firmware zná i jména `DIGIT_0` … `DIGIT_9`.
 
 ## Home Assistant integrace
 
@@ -144,13 +156,13 @@ Tři hotové varianty dashboardu v `home-assistant/`:
 
 ### Vlastní vzhled ovladače — šablona `arris_vip4302` (nové v1.1b)
 
-Standardní šablony karty `generic-remote-control-card` (`simple`, `lg_new`, `mibox`...) mají pevnou předdefinovanou sadu tlačítek bez podpory číselné klávesnice, EPG clusteru nebo barevných tlačítek. Protože žádná neodpovídá layoutu ovladače ARRIS AURA RCL, tenhle projekt dodává **vlastní šablonu** jako samostatný JS soubor:
+Standardní šablony karty `generic-remote-control-card` (`simple`, `lg_new`, `mibox`...) mají pevnou předdefinovanou sadu tlačítek bez podpory číselné klávesnice nebo EPG clusteru. Protože žádná neodpovídá layoutu ovladače ARRIS AURA RCL, tenhle projekt dodává **vlastní šablonu** jako samostatný JS soubor:
 
 ```
 home-assistant/remotes/arris_vip4302/remote-html.js
 ```
 
-Šablona vizuálně kopíruje fyzický ovladač 1:1 — zaoblené černé tělo, kruhové POWER tlačítko vpravo nahoře, číselná klávesnice 1–9 + TEXT/0/INFO, cluster hlasitost (+/−) / EPG / MUTE / kanál (CH +/−), kruhový d-pad s OK uprostřed, vlevo od něj svisle MENU + HOME, vpravo od něj svislý sloupec options (ikona) / modrá / žlutá / zelená / BACK (zpět) / červená — přesně podle rozmístění na originálním ovladači, TV/REC/VOD a dva řádky transport tlačítek (rewind/play-pause/forward, previous/stop/next). Tlačítka hlasitosti a skoku po programu (CH +/−) mají zvětšené ikony (~30 %) pro lepší čitelnost.
+Šablona vizuálně kopíruje originální ovladač ARRIS — tmavé zaoblené tělo, POWER vpravo nahoře, hranatá číselná tlačítka 1–9 s písmeny (ABC…WXYZ) + TEXT / 0 / INFO, vysoké kolébky hlasitosti (+ / −) a kanálu (+ CH −) s kulatými EPG a MUTE mezi nimi (blok o 30 % větší pro lepší ovladatelnost), kruhový d-pad s kovovým OK uprostřed a čtyřmi kulatými tlačítky v rozích (HOME vlevo nahoře, MENU vpravo nahoře, ZPĚT vlevo dole, LUPA vpravo dole), TV / REC / VOD a dva řádky transportu (« ⏯ », |« □ »|). Ikony jsou inline SVG. Barevná tlačítka jsou záměrně vynechána.
 
 **Instalace šablony:**
 
@@ -163,9 +175,11 @@ home-assistant/remotes/arris_vip4302/remote-html.js
 3. Vlož `home-assistant/dashboard-hacs-generic-remote-card.yaml` jako manuální (YAML) kartu do dashboardu (`remote_template: arris_vip4302`).
 4. Tvrdý refresh prohlížeče (Ctrl+F5), ať se stáhne nová šablona.
 
-**Namapovaná tlačítka** (podle aktuálně zjištěných keycodů — viz tabulka výše): power, směrovka (up/down/left/right/ok), back, menu, home, info, text (teletext), volup/voldown, mute, chup/chdown, tv, rec, playpause, stop, rewind/forward, previous/next.
+> **Aktualizace šablony a cache:** HA posílá `/hacsfiles/…` s `Cache-Control: max-age` 31 dní, takže prohlížeč i mobilní appka můžou dlouho držet starou šablonu. Šablona si od v1.2b bere název ze své složky, takže při aktualizaci stačí nahrát `remote-html.js` do **nové složky** (např. `remotes/arris_vip4302_v12b/`) a v kartě změnit `remote_template` na stejný název. Nová URL = vždy čerstvá verze, bez mazání cache.
 
-**Zatím bez akce** (tlačítko je vidět, ale `null` v YAML — čeká na dohledaný keycode): číslice 0–9, EPG, hledání (lupa), VOD, barevná tlačítka.
+**Namapovaná tlačítka** (podle aktuálně zjištěných keycodů — viz tabulka výše): power, směrovka (up/down/left/right/ok), číslice 0–9, back, menu, home, info, text (teletext), volup/voldown, mute, chup/chdown, tv, rec, playpause, stop, rewind/forward, previous/next.
+
+**Zatím bez akce** (tlačítko je vidět, ale `null` v YAML — čeká na dohledaný keycode): EPG, hledání (lupa), VOD.
 
 ### Postup nasazení
 
@@ -180,7 +194,7 @@ Tenhle projekt je **Arduino firmware + ukázková HA dashboard konfigurace + vla
 
 ## Changelog
 
-- **v1.2b** — oprava rozmístění tlačítek kolem d-padu podle fotek originálního ovladače ARRIS: MENU + HOME jsou vlevo od kolečka, vpravo svislý sloupec options / modrá / žlutá / zelená / BACK / červená (dřív byly v samostatných řádcích nad a pod kolečkem). Větší d-pad, širší tělo ovladače. ID tlačítek beze změny — MQTT mapování v dashboardu není potřeba upravovat.
+- **v1.2b** — šablona `arris_vip4302` překreslená podle fotky originálního ovladače: 4 kulatá tlačítka v rozích kolem kolečka (HOME ↖, MENU ↗, ZPĚT ↙, LUPA ↘), kolébky hlasitosti a CH + kulaté EPG/MUTE (blok +30 %), hranatá tlačítka s písmeny, kovové OK, SVG ikony; barevná tlačítka odstraněna. Doplněny číslice 0–9 (HID `0x1E`–`0x27`, na CZ klávesnici `+ěščřžýáíé`) do firmwaru (`DIGIT_0`…`DIGIT_9`) i do obou dashboardů (`RAW:00:1E`…`27`, funguje i bez přeflashování). Šablona si bere název ze své složky (obchvat 31denní cache `/hacsfiles`). ID ostatních tlačítek beze změny.
 - **v1.1b** — přidána vlastní šablona `arris_vip4302` pro `generic-remote-control-card` (vizuálně věrná kopie fyzického ovladače), aktualizovaná `dashboard-hacs-generic-remote-card.yaml` napojená na aktuální MQTT keymap, zvětšené ikony hlasitosti a kanálu (+30 %).
 - **v1.0b** — první veřejná verze: USB HID + MQTT most, firmware, HA dashboard (`grid`+`button`), zjištěný keymap.
 
